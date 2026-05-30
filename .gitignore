@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment files — never commit secrets!
+.env
+client/.env
+server/.env
+
+# Vite build output
+client/dist/
+client/.vite/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
