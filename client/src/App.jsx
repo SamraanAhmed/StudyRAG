@@ -834,13 +834,7 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{
-            fontSize: '11px',
-            color: C.textMuted,
-            fontFamily: "'IBM Plex Mono', monospace"
-          }}>
-            Model: <span style={{ color: C.accentLight }}>{getModelLabel(model)}</span>
-          </div>
+
         </header>
 
         {/* ══════════════════════════════════════════════════════════════════
