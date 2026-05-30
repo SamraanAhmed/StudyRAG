@@ -15,15 +15,18 @@ const allowedOrigins = process.env.ALLOWED_ORIGIN
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.log(`[CORS Check] Incoming Origin: ${origin}, Allowed: ${JSON.stringify(allowedOrigins)}`);
       // Allow requests with no origin (e.g., curl, Postman) and listed origins
       if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
+        console.warn(`[CORS Blocked] Origin ${origin} not matched in allowed list.`);
+        callback(null, false); // Return false instead of throwing a system error to allow Express to send clean preflight responses
       }
     },
     methods: ['POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
+    optionsSuccessStatus: 200 // Some legacy browsers fail on 204 OPTIONS preflights
   })
 );
 
