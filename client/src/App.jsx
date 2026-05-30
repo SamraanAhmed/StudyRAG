@@ -537,11 +537,20 @@ export default function App() {
   const search = (query, topK = 5) => {
     if (!vocab || !idf || embeddings.length === 0) return [];
     const qVec = tfidfEmbed(query, vocab, idf);
-    return embeddings
+    
+    let results = embeddings
       .map((e) => ({ ...e, score: cosineSim(qVec, e.vec) }))
       .filter((e) => e.score > 0.01)
       .sort((a, b) => b.score - a.score)
       .slice(0, topK);
+
+    // Fallback: If no direct keyword matches are found, return the first few chunks
+    // as general context so the model can still answer overview/summarization queries.
+    if (results.length === 0) {
+      results = embeddings.slice(0, topK).map((e) => ({ ...e, score: 0 }));
+    }
+    
+    return results;
   };
 
   // ── askLLM ─────────────────────────────────────────────────────────────
@@ -1166,7 +1175,7 @@ export default function App() {
                                 padding:      '3px 10px',
                               }}
                             >
-                              📄 {trunc(src.docName, 22)} · chunk {src.chunkIndex + 1} · {Math.round(src.score * 100)}%
+                              📄 {trunc(src.docName, 22)} · chunk {src.chunkIndex + 1} · {src.score > 0 ? `${Math.round(src.score * 100)}%` : 'General Context'}
                             </span>
                           ))}
                         </div>
@@ -1278,7 +1287,7 @@ export default function App() {
                       <div style={{ color: C.textSecondary, fontSize:'11px', marginBottom:'4px' }}>
                         [Source {i + 1}]{' '}
                         <span style={{ color: C.textMuted }}>{src.docName}</span> · chunk {src.chunkIndex + 1} ·{' '}
-                        <span style={{ color: C.accent }}>{Math.round(src.score * 100)}% match</span>
+                        <span style={{ color: C.accent }}>{src.score > 0 ? `${Math.round(src.score * 100)}% match` : 'general context'}</span>
                       </div>
                       <div style={{ color: C.textMuted, fontSize:'12px', lineHeight:1.65, fontFamily:"'IBM Plex Mono', monospace" }}>
                         {trunc(src.text, 120)}
